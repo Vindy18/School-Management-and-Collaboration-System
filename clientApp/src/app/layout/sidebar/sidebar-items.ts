@@ -149,19 +149,6 @@ export const ROUTES: RouteInfo[] = [
         isVisible: true
       },
       {
-        path: '/admin/class-teacher',
-        title: 'MENUITEMS.ADMIN.LIST.CLASS-TEACHER',
-        moduleName: 'class-teacher',
-        iconType: '',
-        icon: '',
-        class: 'ml-menu',
-        groupTitle: false,
-        badge: '',
-        badgeClass: '',
-        submenu: [],
-        isVisible: true
-      },
-      {
         path: '/admin/student',
         title: 'MENUITEMS.ADMIN.LIST.STUDENT',
         moduleName: 'student',
