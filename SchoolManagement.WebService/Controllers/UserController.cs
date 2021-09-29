@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolManagement.Business.Interfaces.AccountData;
+using SchoolManagement.ViewModel;
 using SchoolManagement.ViewModel.Account;
 using SchoolManagement.ViewModel.Common;
 using SchoolManagement.WebService.Infrastructure.Services;
@@ -11,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace SchoolManagement.WebService.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -29,14 +32,16 @@ namespace SchoolManagement.WebService.Controllers
         {
             var userName = identityService.GetUserName();
             var response = await userService.SaveUser(vm, userName);
+
             return Ok(response);
         }
 
         [HttpGet]
         [Route("getAllUsers")]
-        public ActionResult GetAllUsers(/*DropDownViewModel vm*/)
+        public ActionResult GetAllUsers()
         {
-            var response = userService.GetAllUsersByRole(/*vm*/);
+            var response = userService.GetAllUsersByRole();
+
             return Ok(response);
         }
 
@@ -44,11 +49,12 @@ namespace SchoolManagement.WebService.Controllers
         public async Task<ActionResult> Delete(int id)
         {
             var response = await userService.DeleteUser(id);
+
             return Ok(response);
         }
 
         [HttpGet]
-        [Route("GetUserById/{id}")]
+        [Route("getUserById/{id}")]
         public ActionResult GetUserById(int id)
         {
             var response = userService.GetUserbyId(id);
@@ -63,6 +69,46 @@ namespace SchoolManagement.WebService.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet]
+        [Route("getUserMasterData")]
+        public UserMasterDataViewModel GetUserMasterData()
+        {
+            var response = userService.GetUserMasterData();
+
+            return response;
+        }
+
+        [HttpGet]
+        [Route("getUserList")]
+        public PaginatedItemsViewModel<BasicUserViewModel> GetUserList(string searchText, int currentPage, int pageSize, int roleId)
+        {
+            var response = userService.GetUserList(searchText, currentPage, pageSize, roleId);
+
+            return response;
+        }
+
+        [HttpGet]
+        [Route("getUserDetail")]
+        public UserMasterViewModel GetUserDetail()
+        {
+            var userName = identityService.GetUserName();
+
+            var response = userService.GetUserDetail(userName);
+
+            return response;
+        }
+
+        [HttpPost]
+        [Route("updateUserMasterData")]
+        public async Task<ActionResult> UpdateUserMasterData([FromBody] UserMasterViewModel vm)
+        {
+            var userName = identityService.GetUserName();
+            var response = await userService.UpdateUserMasterData(vm, userName);
+
+            return Ok(response);
+        }
+
 
     }
 }
