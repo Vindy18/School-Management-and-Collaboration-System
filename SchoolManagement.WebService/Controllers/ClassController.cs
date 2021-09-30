@@ -86,7 +86,12 @@ namespace SchoolManagement.WebService.Controllers
       return response;
     }
 
-
+    //public ActionResult Report(Classes classes)
+    //{
+    //  ClassReport classReport = new ClassReport();
+    //  byte[] abytes = classReport.PrepareReport();
+    //  return File(abytes, "classReport/pdf");
+    //}
 
   }
 }
