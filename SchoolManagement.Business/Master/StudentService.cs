@@ -110,7 +110,7 @@ namespace SchoolManagement.Business.Master
                 var user = schoolDb.Users.Find(item.Id);
                 var studentClass = schoolDb.StudentClasses.FirstOrDefault(sc => sc.StudentId == item.Id);
                 var classNameSet = schoolDb.Classes.FirstOrDefault(cns => cns.ClassNameId == studentClass.ClassNameId);
-                //var studentClassList = schoolDb.StudentClasses.Find(item.Id);
+
 
                 if (user != null)
                 {
