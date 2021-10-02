@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolManagement.Business.Interfaces.MasterData;
+using SchoolManagement.ViewModel;
 using SchoolManagement.ViewModel.Master;
+using SchoolManagement.ViewModel.Master.ClassName;
 using SchoolManagement.WebService.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
@@ -43,6 +45,14 @@ namespace SchoolManagement.WebService.Controllers
         {
             var response = await classNameService.DeleteClassName(id);
             return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("getClassNameList")]
+        public PaginatedItemsViewModel<BasicClassNameViewModel> GetClassNameList(string searchText, int currentPage, int pageSize)
+        {
+            var response = classNameService.GetClassNameList(searchText, currentPage, pageSize);
+            return response;
         }
     }
 }

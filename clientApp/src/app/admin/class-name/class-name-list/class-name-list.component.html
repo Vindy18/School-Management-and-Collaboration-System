@@ -17,6 +17,8 @@
                 <div class="row">
                   <div class="col-lg-6">
                     <div class="row m-0">
+                      <form 
+                      [formGroup]="classNameFilterForm">
                       <div class="col-lg-3 p-0">
                         <div class="ngxTableHeader">
                           <div class="table-title">
@@ -24,52 +26,75 @@
                           </div>
                         </div>
                       </div>
-                      <div class="col-lg-5 p-0">
-                        <div class="ngxTableHeader">
-                          <div class="table-search-area">
-                            <div>
-                              <label for="search-input"><i class="material-icons search-icon">search</i></label>
-                              <input placeholder="Search" type="text" class="browser-default search-field"
-                                     aria-label="Search box">
+                      <div class="col-12 p-0">
+                        <div class="row">
+                          <div class="col-4">
+                            <div class="form-group position-relative">
+                              <label>Search Text</label>
+                              <i class="fas fa-search input-icons"></i>
+                              <input
+                                type="text"
+                                (keyup)="filterDatatable($event)"
+                                formControlName="searchText"
+                                class="form-control psl-5"
+                                placeholder="Search by name"
+                                name="searchText"
+                                required=""
+                              />
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div class="col-lg-4 p-0">
-                        <div class="ngxTableHeader">
-                          <div class="header-buttons-left">
-                            <div class="icon-button-demo buttons">
-                              <button class="btn btn-icon icon-left btn-primary rounded-button" (click)='addNewClassName(addEditRecord)'>
-                                <i class="material-icons">add</i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                      </form>
                   </div>
                 </div>
+              </div>
 
                 <ngx-datatable #table class="material" [rows]="data" [loadingIndicator]="loadingIndicator"
                 columnMode="force" [headerHeight]="60" [footerHeight]="80" rowHeight="auto" [limit]="10"
                 [scrollbarH]="scrollBarHorizontal" [reorderable]="reorderable">
 
-                <ngx-datatable-column [width]="100" name="Actions" sortable="false">
-                  <ng-template let-value="value" let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                <!-- Action Column -->
+                <ngx-datatable-column [width]="80" name="" sortable="false">
+                  <ng-template 
+                    let-value="value"
+                    let-row="row"
+                    let-rowIndex="rowIndex"
+                    sortable="false"
+                    ngx-datatable-header-template
+                    class="text-center"
+                    >
+                    <span>
+                      <button
+                        class="btn btn-icon icon-left btn-primary rounded-button"
+                        (click)='addNewClassName(addEditRecord)'>
+                        
+                      <i class="material-icons">add</i>
+                    </button>
+                  </span>
+                  </ng-template>
+                  <ng-template  let-value="value"
+                    let-row="row"
+                    let-rowIndex="rowIndex"
+                    ngx-datatable-cell-template
+                    class="text-center"
+                    >
                     <div class="buttons">
                       <span>
+                         <!--Edit Button -->
                         <button 
                           class="btn btn-icon btn-sm btn-primary" 
                           (click)='editRow(row, rowIndex, addEditRecord)'>
                           <i class="far fa-edit"></i>
                         </button>
+                         <!--Delete Button -->
                         <button 
                           class="btn btn-icon btn-sm btn-danger" 
                           (click)='deleteClassName(row)'>
                           <i class="far fa-trash-alt"></i>
                         </button>
                       </span>
-                    </div>
+                    </div>  
                   </ng-template>
                 </ngx-datatable-column>
                 
@@ -134,9 +159,16 @@
                         </div>
                       </div>
                     </h4>
-                    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
-                      <span aria-hidden="true"><i class="material-icons">close</i></span>
-                    </button>
+                    <button
+                  type="button"
+                  class="close"
+                  aria-label="Close"
+                  (click)="modal.dismiss('Cross click')"
+                >
+                  <span aria-hidden="true"
+                    ><i class="material-icons">close</i></span
+                  >
+                </button>
                   </div>
                   <div class="modal-body">
                     <form class="register-form" [formGroup]="saveClassNameForm">
@@ -177,7 +209,13 @@
                       <!-- Modal Footer -->
                       <div class="modal-footer">
                         <button type="submit" class="btn btn-primary" (click)="saveClassName()" [disabled]="!saveClassNameForm.valid">Save Class Name</button>
-                        <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+                        <button
+                      type="button"
+                      class="btn btn-light"
+                      (click)="modal.close()"
+                    >
+                      Close
+                    </button>
                       </div>
                     </form>
                   </div>

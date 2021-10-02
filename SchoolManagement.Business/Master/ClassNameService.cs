@@ -6,12 +6,14 @@ using SchoolManagement.Model;
 using SchoolManagement.Util;
 using SchoolManagement.ViewModel.Master;
 using SchoolManagement.ViewModel.Common;
+using SchoolManagement.ViewModel.Master.ClassName;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SchoolManagement.Util.Constants.ServiceClassConstants;
+using SchoolManagement.ViewModel;
 
 namespace SchoolManagement.Business.Master
 {
@@ -138,6 +140,51 @@ namespace SchoolManagement.Business.Master
             }
 
             return response;
+        }
+
+        public PaginatedItemsViewModel<BasicClassNameViewModel> GetClassNameList(string searchText, int currentPage, int pageSize)
+        {
+            int totalRecordCount = 0;
+            double totalPages = 0;
+            int totalPageCount = 0;
+
+            var vmu = new List<BasicClassNameViewModel>();
+
+            var classNames = schoolDb.ClassNames.OrderBy(x => x.Id);
+            //var classNames = schoolDb.ClassNames.Where(x => x.IsActive == true).OrderBy(s => s.Name);
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                classNames = classNames.Where(x => x.Name.Contains(searchText)).OrderBy(s => s.Id);
+            }
+
+            totalRecordCount = classNames.Count();
+            totalPages = (double)totalRecordCount / pageSize;
+            totalPageCount = (int)Math.Ceiling(totalPages);
+
+            var classNameList = classNames.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+            var classNameAcademicLevel = new List<DropDownViewModel>();
+
+            classNameList.ForEach(classNames =>
+            {
+                var vm = new BasicClassNameViewModel()
+                {
+                    Id = classNames.Id,
+                    Name = classNames.Name,
+                    Description = classNames.Description,
+                    CreatedByName = classNames.CreatedBy.FullName,
+                    CreatedOn = classNames.CreatedOn,
+                    UpdatedByName = classNames.UpdatedBy.FullName,
+                    UpdatedOn = classNames.UpdatedOn,
+
+                };
+                vmu.Add(vm);
+            });
+
+            var container = new PaginatedItemsViewModel<BasicClassNameViewModel>(currentPage, pageSize, totalPageCount, totalRecordCount, vmu);
+
+            return container;
         }
     }
 }

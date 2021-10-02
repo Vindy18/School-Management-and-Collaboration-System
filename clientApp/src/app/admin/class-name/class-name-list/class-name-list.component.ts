@@ -2,10 +2,11 @@ import { classnameModel } from './../../../models/class-name/classname.model';
 import { ToastrService } from 'ngx-toastr';
 import { ClassNameService } from './../../../services/classname/classname.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import Swal from 'sweetalert2';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-class-name-list',
@@ -20,17 +21,23 @@ export class ClassNameListComponent implements OnInit {
   scrollBarHorizontal = window.innerWidth < 1200;
   loadingIndicator = false;
   saveClassNameForm:FormGroup;
+  classNameFilterForm:FormGroup;
   reorderable = true;
-  classname:classnameModel;
+  classname:classnameModel
+  currentPage: number = 0;
+  pageSize: number = 10;
+  totalRecord: number = 0;
 
   constructor(
     private fb: FormBuilder,
     private modalService: NgbModal,
     private classnameService:ClassNameService,
+    private spinner:NgxSpinnerService,
     private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.getAll();
+    this.classNameFilterForm = this.createClassNameFilterForm();
   }
 
   //Retrive class name details
@@ -41,9 +48,55 @@ export class ClassNameListComponent implements OnInit {
       this.data= response;
       this.loadingIndicator=false;
     },error=>{
+      this.spinner.hide();
       this.loadingIndicator=false;
     });
   }
+
+  setPage(pageInfo) {
+    this.spinner.show();
+    this.loadingIndicator = true;
+    this.currentPage = pageInfo.offset;
+    this.getClassNameList();
+  }
+
+   //FIlter Master 
+   filterDatatable(event) {
+    this.currentPage = 0;
+    this.pageSize = 25;
+    this.totalRecord = 0;
+    const val = event.target.value.toLowerCase();
+    this.spinner.show();
+    this.getClassNameList();
+  }
+
+  getClassNameList(){
+    this.loadingIndicator = true;
+    this.classnameService.getClassNameList(this.searchFilterdId, this.currentPage + 1, this.pageSize)
+    .subscribe(response=>{
+      this.data = response.data;
+      this.totalRecord = response.totalRecordCount;
+      this.spinner.hide();
+      this.loadingIndicator = false;
+
+    },error=>{
+      this.spinner.hide();
+      this.loadingIndicator = false;
+      this.toastr.error("Network error has been occured. Please try again.","Error");
+    });
+  }
+
+  createClassNameFilterForm():FormGroup{
+
+    return new FormGroup({
+      searchText:new FormControl(""),
+    });
+  }
+   //getters
+get searchFilterdId(){
+  return this.classNameFilterForm.get("searchText").value
+    
+}
 
   //create new class name (Reactive Form)
   addNewClassName(content) {
