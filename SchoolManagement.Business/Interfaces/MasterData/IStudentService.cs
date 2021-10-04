@@ -17,5 +17,7 @@ namespace SchoolManagement.Business.Interfaces.MasterData
         List<DropDownViewModel> GetAllClasses();
         List<DropDownViewModel> GetAllAcademicYears();
         List<DropDownViewModel> GetAllAcademicLevels();
+        byte[] PrepareReport(List<StudentViewModel> students);
+        byte[] GetStudentListPdf();
     }
 }

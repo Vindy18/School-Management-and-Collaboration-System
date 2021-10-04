@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using iTextSharp.text;
+using iTextSharp.text.pdf;
+using Microsoft.Extensions.Configuration;
 using SchoolManagement.Business.Interfaces.MasterData;
 using SchoolManagement.Data.Data;
 using SchoolManagement.Master.Data.Data;
@@ -9,6 +11,7 @@ using SchoolManagement.ViewModel.Common;
 using SchoolManagement.ViewModel.Master;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +24,16 @@ namespace SchoolManagement.Business.Master
         private readonly SchoolManagementContext schoolDb;
         private readonly IConfiguration config;
         private readonly ICurrentUserService currentUserService;
+
+        #region Declaration
+        int totalColumns = 3;
+        Document document;
+        Font fontStyle;
+        PdfPTable pdfTable = new PdfPTable(3);
+        PdfPCell pdfCell;
+        MemoryStream memoryStream = new MemoryStream();
+        List<StudentViewModel> studentsList = new List<StudentViewModel>();
+        #endregion
 
         public StudentService(MasterDbContext masterDb, SchoolManagementContext schoolDb, IConfiguration config, ICurrentUserService currentUserService)
         {
@@ -279,6 +292,134 @@ namespace SchoolManagement.Business.Master
                 response.Message = ex.ToString();
             }
             return response;
+        }
+
+        public byte[] PrepareReport(List<StudentViewModel> students)
+        {
+            studentsList = students;
+
+            #region
+            document = new Document(PageSize.A4, 0f, 0f, 0f, 0f);
+            document.SetPageSize(PageSize.A4);
+            document.SetMargins(20f, 20f, 20f, 20f);
+            pdfTable.WidthPercentage = 100;
+            pdfTable.HorizontalAlignment = Element.ALIGN_LEFT;
+            fontStyle = FontFactory.GetFont("Tahoma", 8f, 1);
+            PdfWriter.GetInstance(document, memoryStream);
+            document.Open();
+            pdfTable.SetWidths(new float[] { 20f, 150f, 100f });
+            #endregion
+
+            this.ReportHeader();
+            this.ReportBody(studentsList);
+            pdfTable.HeaderRows = 2;
+            document.Add(pdfTable);
+            document.Close();
+            return memoryStream.ToArray();
+        }
+
+        private void ReportHeader()
+        {
+            fontStyle = FontFactory.GetFont("Tahoma", 11f, 1);
+            pdfCell = new PdfPCell(new Phrase("School Name", fontStyle));
+            pdfCell.Colspan = totalColumns;
+            pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            pdfCell.Border = 0;
+            pdfCell.BackgroundColor = BaseColor.WHITE;
+            pdfCell.ExtraParagraphSpace = 0;
+            pdfTable.AddCell(pdfCell);
+            pdfTable.CompleteRow();
+
+            fontStyle = FontFactory.GetFont("Tahoma", 9f, 1);
+            pdfCell = new PdfPCell(new Phrase("Students List", fontStyle));
+            pdfCell.Colspan = totalColumns;
+            pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            pdfCell.Border = 0;
+            pdfCell.BackgroundColor = BaseColor.WHITE;
+            pdfCell.ExtraParagraphSpace = 0;
+            pdfTable.AddCell(pdfCell);
+            pdfTable.CompleteRow();
+        }
+
+        private void ReportBody(List<StudentViewModel> students)
+        {
+            #region Table header
+            fontStyle = FontFactory.GetFont("Tahoma", 8f, 1);
+            pdfCell = new PdfPCell(new Phrase("Admission no", fontStyle));
+            pdfCell.Colspan = totalColumns;
+            pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+            pdfCell.Border = 0;
+            pdfCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+            pdfCell.ExtraParagraphSpace = 0;
+            pdfTable.AddCell(pdfCell);
+
+            pdfCell = new PdfPCell(new Phrase("Student name", fontStyle));
+            pdfCell.Colspan = totalColumns;
+            pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+            pdfCell.Border = 0;
+            pdfCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+            pdfCell.ExtraParagraphSpace = 0;
+            pdfTable.AddCell(pdfCell);
+
+            pdfCell = new PdfPCell(new Phrase("Address", fontStyle));
+            pdfCell.Colspan = totalColumns;
+            pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+            pdfCell.Border = 0;
+            pdfCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+            pdfCell.ExtraParagraphSpace = 0;
+            pdfTable.AddCell(pdfCell);
+            pdfTable.CompleteRow();
+            #endregion
+
+            #region Table body
+            fontStyle = FontFactory.GetFont("Tahoma", 8f, 0);
+            foreach (var item in students)
+            {
+                pdfCell = new PdfPCell(new Phrase(item.AdmissionNo.ToString(), fontStyle));
+                pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                pdfCell.BackgroundColor = BaseColor.WHITE;
+                pdfTable.AddCell(pdfCell);
+
+                pdfCell = new PdfPCell(new Phrase(item.FullName, fontStyle));
+                pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                pdfCell.BackgroundColor = BaseColor.WHITE;
+                pdfTable.AddCell(pdfCell);
+
+                pdfCell = new PdfPCell(new Phrase(item.Address, fontStyle));
+                pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                pdfCell.BackgroundColor = BaseColor.WHITE;
+                pdfTable.AddCell(pdfCell);
+                pdfTable.CompleteRow();
+            }
+            #endregion
+        }
+
+        public byte[] GetStudentListPdf()
+        {
+            var allStudents = schoolDb.Students.Where(s => s.IsActive == true).ToList();
+            var toReport = new List<StudentViewModel>();
+
+            foreach (var item in allStudents)
+            {
+                var user = schoolDb.Users.Find(item.Id);
+
+                var student = new StudentViewModel()
+                {
+                    FullName = user.FullName,
+                    AdmissionNo = item.AdmissionNo,
+                    Address = user.Address
+                };
+                toReport.Add(student);
+            }
+
+            var pdf = this.PrepareReport(toReport);
+            return pdf;
         }
     }
 }

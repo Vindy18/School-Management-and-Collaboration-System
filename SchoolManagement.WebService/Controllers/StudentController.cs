@@ -76,5 +76,14 @@ namespace SchoolManagement.WebService.Controllers
             var response = studentService.GetAllAcademicLevels();
             return Ok(response);
         }
+
+        [HttpGet]
+        [Route("getStudentsPdf")]
+        public IActionResult GetStudentsPdf()
+        {
+            var response = studentService.GetStudentListPdf();
+            return Ok(File(response, "application/pdf", "AllStudents.pdf"));
+        }
+
     }
 }
