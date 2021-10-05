@@ -17,6 +17,7 @@ namespace SchoolManagement.Business.Interfaces.MasterData
     Task<ResponseViewModel> SaveClassDetail(ClassViewModel vm, string userName);
     ClassMasterDataViewModel GetClassMasterData();
     Task<ResponseViewModel> DeleteClass(int academicYearId, int academicLevelId, int classNameId, string username);
-
+    DownloadFileModel downloadClassListReport();
+    List<ClassViewModel> GetAllClasses();
   }
 }

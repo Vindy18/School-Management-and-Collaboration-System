@@ -8,6 +8,7 @@ using SchoolManagement.ViewModel.Master;
 using SchoolManagement.WebService.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -86,11 +87,23 @@ namespace SchoolManagement.WebService.Controllers
             return response;
         }
 
+        [HttpGet]
+        [Route("getAllClasses")]
+        public IActionResult GetAllClasses()
+        {
+            var response = classService.GetAllClasses();
 
+            return Ok(response);
+        }
 
+        [HttpGet]
+        [RequestSizeLimit(long.MaxValue)]
+        [Route("downloadClassList")]
+        public FileStreamResult downloadClassListReport()
+        {
+            var response = classService.downloadClassListReport();
 
-
-
-
+            return File(new MemoryStream(response.FileData), "application/pdf", response.FileName);
+        }
     }
 }
