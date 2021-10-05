@@ -171,7 +171,6 @@ namespace SchoolManagement.Business.Master
                         CreatedOn = DateTime.UtcNow,
                         UpdatedOn = DateTime.UtcNow,
                         Address = vm.Address,
-                        ProfileImage = 0,
                         LastLoginDate = DateTime.UtcNow,
                         LoginSessionId = 0
                     };
