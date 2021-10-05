@@ -1,5 +1,7 @@
-﻿using SchoolManagement.ViewModel.Common;
+﻿using SchoolManagement.ViewModel;
+using SchoolManagement.ViewModel.Common;
 using SchoolManagement.ViewModel.Master;
+using SchoolManagement.ViewModel.Master.Student;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +19,9 @@ namespace SchoolManagement.Business.Interfaces.MasterData
         List<DropDownViewModel> GetAllClasses();
         List<DropDownViewModel> GetAllAcademicYears();
         List<DropDownViewModel> GetAllAcademicLevels();
-        byte[] PrepareReport(List<StudentViewModel> students);
-        byte[] GetStudentListPdf();
+        DownloadFileModel DownloadStudentReport();
+
+        //byte[] PrepareReport(List<StudentViewModel> students);
+        //byte[] GetStudentListPdf();
     }
 }

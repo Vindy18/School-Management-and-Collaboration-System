@@ -7,8 +7,10 @@ using SchoolManagement.Master.Data.Data;
 using SchoolManagement.Model;
 using SchoolManagement.Util;
 using SchoolManagement.Util.Constants.ServiceClassConstants;
+using SchoolManagement.ViewModel;
 using SchoolManagement.ViewModel.Common;
 using SchoolManagement.ViewModel.Master;
+using SchoolManagement.ViewModel.Master.Student;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,16 +26,6 @@ namespace SchoolManagement.Business.Master
         private readonly SchoolManagementContext schoolDb;
         private readonly IConfiguration config;
         private readonly ICurrentUserService currentUserService;
-
-        #region Declaration
-        int totalColumns = 3;
-        Document document;
-        Font fontStyle;
-        PdfPTable pdfTable = new PdfPTable(3);
-        PdfPCell pdfCell;
-        MemoryStream memoryStream = new MemoryStream();
-        List<StudentViewModel> studentsList = new List<StudentViewModel>();
-        #endregion
 
         public StudentService(MasterDbContext masterDb, SchoolManagementContext schoolDb, IConfiguration config, ICurrentUserService currentUserService)
         {
@@ -117,42 +109,42 @@ namespace SchoolManagement.Business.Master
 
             var studentQuery = schoolDb.Students.Where(u => u.IsActive == true);
             var studentList = studentQuery.ToList();
-                
-            foreach (var item in studentList)
-            {
-                var user = schoolDb.Users.Find(item.Id);
-                var studentClass = schoolDb.StudentClasses.FirstOrDefault(sc => sc.StudentId == item.Id);
-                var classNameSet = schoolDb.Classes.FirstOrDefault(cns => cns.ClassNameId == studentClass.ClassNameId);
 
-
-                if (user != null)
+                foreach (var item in studentList)
                 {
-                    var vm = new StudentViewModel
+                    var user = schoolDb.Users.Find(item.Id);
+                    var studentClass = schoolDb.StudentClasses.FirstOrDefault(sc => sc.StudentId == item.Id);
+                    var classNameSet = schoolDb.Classes.FirstOrDefault(cn => cn.ClassNameId == studentClass.ClassNameId);
+
+                    if (user != null)
                     {
-                        Id = item.Id,
-                        AdmissionNo = item.AdmissionNo,
-                        EmegencyContactNo = item.EmegencyContactNo2,
-                        Gender = item.Gender,
-                        GenderName = item.Gender.ToString(),
-                        DateOfBirth = (DateTime)item.DateOfBirth,
-                        IsActive = item.IsActive,
-                        FullName = user.FullName,
-                        Email = user.Email,
-                        Password = user.Password,
-                        MobileNo = user.MobileNo,
-                        Username = user.Username,
-                        Address = user.Address,
-                        ClassName = classNameSet.Name,
-                        Classes = classNameSet.ClassNameId,
-                        AcademicYear = studentClass.AcademicYearId,
-                        AcademicLevel = studentClass.AcademicLevelId
-                    };
-                    response.Add(vm);
+                        var vm = new StudentViewModel
+                        {
+                            Id = item.Id,
+                            AdmissionNo = item.AdmissionNo,
+                            EmegencyContactNo = item.EmegencyContactNo2,
+                            Gender = item.Gender,
+                            GenderName = item.Gender.ToString(),
+                            DateOfBirth = (DateTime)item.DateOfBirth,
+                            IsActive = item.IsActive,
+                            FullName = user.FullName,
+                            Email = user.Email,
+                            Password = user.Password,
+                            MobileNo = user.MobileNo,
+                            Username = user.Username,
+                            Address = user.Address,
+                            ClassName = classNameSet.Name,
+                            Classes = classNameSet.ClassNameId,
+                            AcademicYear = studentClass.AcademicYearId,
+                            AcademicLevel = studentClass.AcademicLevelId
+                        };
+                        response.Add(vm);
+                    }
                 }
-            }
 
             return response;
         }
+
 
         public async Task<ResponseViewModel> SaveStudent(StudentViewModel vm, string userName)
         {
@@ -294,6 +286,33 @@ namespace SchoolManagement.Business.Master
             return response;
         }
 
+        public DownloadFileModel DownloadStudentReport()
+        {
+            var studentReport = new StudentReport();
+
+            byte[] abytes = studentReport.PrepareReport(GetAllStudent());
+
+            var response = new DownloadFileModel();
+            response.FileData = abytes;
+            response.FileType = "application/pdf";
+            response.FileName = "StudentReport";
+
+            return response;
+        }
+    }
+
+    public class StudentReport
+    {
+        #region Declaration
+        int totalColumns = 4;
+        Document document;
+        Font fontStyle;
+        PdfPTable pdfTable = new PdfPTable(4);
+        PdfPCell pdfCell;
+        MemoryStream memoryStream = new MemoryStream();
+        List<StudentViewModel> studentsList = new List<StudentViewModel>();
+        #endregion
+
         public byte[] PrepareReport(List<StudentViewModel> students)
         {
             studentsList = students;
@@ -307,7 +326,8 @@ namespace SchoolManagement.Business.Master
             fontStyle = FontFactory.GetFont("Tahoma", 8f, 1);
             PdfWriter.GetInstance(document, memoryStream);
             document.Open();
-            pdfTable.SetWidths(new float[] { 20f, 150f, 100f });
+            //admission, student name, phone number, address
+            pdfTable.SetWidths(new float[] { 20f, 90f, 40f, 40f });
             #endregion
 
             this.ReportHeader();
@@ -321,7 +341,7 @@ namespace SchoolManagement.Business.Master
         private void ReportHeader()
         {
             fontStyle = FontFactory.GetFont("Tahoma", 11f, 1);
-            pdfCell = new PdfPCell(new Phrase("School Name", fontStyle));
+            pdfCell = new PdfPCell(new Phrase("SolisTech Solutions", fontStyle));
             pdfCell.Colspan = totalColumns;
             pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
             pdfCell.Border = 0;
@@ -331,7 +351,7 @@ namespace SchoolManagement.Business.Master
             pdfTable.CompleteRow();
 
             fontStyle = FontFactory.GetFont("Tahoma", 9f, 1);
-            pdfCell = new PdfPCell(new Phrase("Students List", fontStyle));
+            pdfCell = new PdfPCell(new Phrase("Students List Report", fontStyle));
             pdfCell.Colspan = totalColumns;
             pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
             pdfCell.Border = 0;
@@ -345,31 +365,28 @@ namespace SchoolManagement.Business.Master
         {
             #region Table header
             fontStyle = FontFactory.GetFont("Tahoma", 8f, 1);
-            pdfCell = new PdfPCell(new Phrase("Admission no", fontStyle));
-            pdfCell.Colspan = totalColumns;
+            pdfCell = new PdfPCell(new Phrase("Admis", fontStyle));
             pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
             pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-            pdfCell.Border = 0;
             pdfCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-            pdfCell.ExtraParagraphSpace = 0;
             pdfTable.AddCell(pdfCell);
 
             pdfCell = new PdfPCell(new Phrase("Student name", fontStyle));
-            pdfCell.Colspan = totalColumns;
             pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
             pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-            pdfCell.Border = 0;
             pdfCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-            pdfCell.ExtraParagraphSpace = 0;
+            pdfTable.AddCell(pdfCell);
+
+            pdfCell = new PdfPCell(new Phrase("Contact no:", fontStyle));
+            pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+            pdfCell.BackgroundColor = BaseColor.LIGHT_GRAY;
             pdfTable.AddCell(pdfCell);
 
             pdfCell = new PdfPCell(new Phrase("Address", fontStyle));
-            pdfCell.Colspan = totalColumns;
             pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
             pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-            pdfCell.Border = 0;
             pdfCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-            pdfCell.ExtraParagraphSpace = 0;
             pdfTable.AddCell(pdfCell);
             pdfTable.CompleteRow();
             #endregion
@@ -390,6 +407,12 @@ namespace SchoolManagement.Business.Master
                 pdfCell.BackgroundColor = BaseColor.WHITE;
                 pdfTable.AddCell(pdfCell);
 
+                pdfCell = new PdfPCell(new Phrase(item.EmegencyContactNo, fontStyle));
+                pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                pdfCell.BackgroundColor = BaseColor.WHITE;
+                pdfTable.AddCell(pdfCell);
+
                 pdfCell = new PdfPCell(new Phrase(item.Address, fontStyle));
                 pdfCell.HorizontalAlignment = Element.ALIGN_CENTER;
                 pdfCell.VerticalAlignment = Element.ALIGN_MIDDLE;
@@ -398,28 +421,6 @@ namespace SchoolManagement.Business.Master
                 pdfTable.CompleteRow();
             }
             #endregion
-        }
-
-        public byte[] GetStudentListPdf()
-        {
-            var allStudents = schoolDb.Students.Where(s => s.IsActive == true).ToList();
-            var toReport = new List<StudentViewModel>();
-
-            foreach (var item in allStudents)
-            {
-                var user = schoolDb.Users.Find(item.Id);
-
-                var student = new StudentViewModel()
-                {
-                    FullName = user.FullName,
-                    AdmissionNo = item.AdmissionNo,
-                    Address = user.Address
-                };
-                toReport.Add(student);
-            }
-
-            var pdf = this.PrepareReport(toReport);
-            return pdf;
         }
     }
 }

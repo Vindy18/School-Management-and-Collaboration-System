@@ -5,6 +5,7 @@ using SchoolManagement.ViewModel.Master;
 using SchoolManagement.WebService.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -78,11 +79,13 @@ namespace SchoolManagement.WebService.Controllers
         }
 
         [HttpGet]
-        [Route("getStudentsPdf")]
-        public IActionResult GetStudentsPdf()
+        [RequestSizeLimit(long.MaxValue)]
+        [Route("downloadStudentList")]
+        public FileStreamResult DownloadStudentList()
         {
-            var response = studentService.GetStudentListPdf();
-            return Ok(File(response, "application/pdf", "AllStudents.pdf"));
+            var response = studentService.DownloadStudentReport();
+
+            return File(new MemoryStream(response.FileData), "application/pdf", response.FileName);
         }
 
     }
