@@ -7,6 +7,7 @@ import { StudentModel } from './../../../models/student/student.model'
 import { StudentService } from './../../../services/student/student.service'
 import Swal from 'sweetalert2';
 import { DropDownModel } from 'src/app/models/common/drop-down.model';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-student-list',
@@ -195,6 +196,14 @@ export class StudentListComponent implements OnInit {
       console.log(response);
       this.studentClass = response;
     }, error=>{
+
+    });
+  }
+
+  generateReport() {
+    this.studentService.DownloadStudentList().subscribe((response:HttpResponse<Blob>) =>{
+
+    }, error =>{
 
     });
   }

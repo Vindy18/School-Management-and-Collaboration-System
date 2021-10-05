@@ -52,4 +52,9 @@ export class StudentService {
   uploadClassStudents(data: FormData): Observable<Upload> {
     return this.httpClient.post(environment.apiUrl +'Student/uploadClassStudents', data,{reportProgress: true,observe: 'events'}).pipe(upload());
   }
+
+  DownloadStudentList(): Observable<any> {
+    return this.httpClient.get<any>
+      (environment.apiUrl + 'Student/downloadStudentList');
+  }
 }
