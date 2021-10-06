@@ -350,8 +350,8 @@ namespace SchoolManagement.Business.Master
       return response;
     }
 
-        public List<ClassViewModel> GetAllClasses()
-        {
+    public List<ClassViewModel> GetAllClasses()
+    {
             var response = new List<ClassViewModel>();
 
             var query = schoolDb.Classes.Where(u => u.ClassNameId != null);
@@ -363,9 +363,9 @@ namespace SchoolManagement.Business.Master
                 var vm = new ClassViewModel
                 {
                     AcademicYearId = item.AcademicYear.Id,
-                    AcademicLevelId = item.AcademicLevelId,
-                    ClassNameId = item.ClassNameId,
-                    ClassTeacherId = item.CreatedById,
+                    AcademicLevelName = item.AcademicLevel.Name,
+                    ClassNames = item.ClassName.Name,
+                    ClassTeacherName = item.CreatedBy.FullName,
                     ClassCategoryId = item.ClassCategory,
                     LanguageStreamId = item.LanguageStream
                 };
@@ -374,10 +374,10 @@ namespace SchoolManagement.Business.Master
             }
 
             return response;
-        }
+     }
 
-        public DownloadFileModel downloadClassListReport()
-        {
+    public DownloadFileModel downloadClassListReport()
+    {
             var classListReport = new ClassListReport();
 
             byte[] abytes = classListReport.PrepareReport(GetAllClasses());
@@ -388,15 +388,15 @@ namespace SchoolManagement.Business.Master
             response.FileType = "application/pdf";
 
             return response;
-        }
+    }
 
-        public class ClassListReport
-        {
+    public class ClassListReport
+    {
             #region Declaration
-            int _totalColumn = 6;
+            int _totalColumn = 3;
             Document _document;
             Font _fontStyle;
-            iTextSharp.text.pdf.PdfPTable _pdfPTable = new PdfPTable(6);
+            iTextSharp.text.pdf.PdfPTable _pdfPTable = new PdfPTable(3);
             iTextSharp.text.pdf.PdfPCell _pdfPCell;
             MemoryStream _memoryStream = new MemoryStream();
             List<ClassViewModel> _classes = new List<ClassViewModel>();
@@ -416,12 +416,12 @@ namespace SchoolManagement.Business.Master
 
                 iTextSharp.text.pdf.PdfWriter.GetInstance(_document, _memoryStream);
                 _document.Open();
-                _pdfPTable.SetWidths(new float[] { 50f, 50f, 50f, 50f, 50f, 50f });
+                _pdfPTable.SetWidths(new float[] { 50f, 50f, 50f});
                 #endregion
 
                 this.ReportHeader();
                 this.ReportBody();
-                _pdfPTable.HeaderRows = 6;
+                _pdfPTable.HeaderRows = 3;
                 _document.Add(_pdfPTable);
                 _document.Close();
                 return _memoryStream.ToArray();
@@ -454,11 +454,11 @@ namespace SchoolManagement.Business.Master
             {
                 #region Table header
                 _fontStyle = FontFactory.GetFont("TimesNewRoman", 10f, 1);
-                _pdfPCell = new PdfPCell(new Phrase("Academic Year", _fontStyle));
-                _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-                _pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                _pdfPTable.AddCell(_pdfPCell);
+                //_pdfPCell = new PdfPCell(new Phrase("Academic Year", _fontStyle));
+                //_pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                //_pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                //_pdfPTable.AddCell(_pdfPCell);
 
                 _pdfPCell = new PdfPCell(new Phrase("Academic Level", _fontStyle));
                 _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -478,17 +478,17 @@ namespace SchoolManagement.Business.Master
                 _pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
                 _pdfPTable.AddCell(_pdfPCell);
 
-                _pdfPCell = new PdfPCell(new Phrase("Class Category", _fontStyle));
-                _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-                _pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                _pdfPTable.AddCell(_pdfPCell);
+                //_pdfPCell = new PdfPCell(new Phrase("Class Category", _fontStyle));
+                //_pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                //_pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                //_pdfPTable.AddCell(_pdfPCell);
 
-                _pdfPCell = new PdfPCell(new Phrase("Language Stream", _fontStyle));
-                _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-                _pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                _pdfPTable.AddCell(_pdfPCell);
+                //_pdfPCell = new PdfPCell(new Phrase("Language Stream", _fontStyle));
+                //_pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                //_pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                //_pdfPTable.AddCell(_pdfPCell);
                 _pdfPTable.CompleteRow();
                 #endregion
 
@@ -496,41 +496,41 @@ namespace SchoolManagement.Business.Master
                 _fontStyle = FontFactory.GetFont("TimesNewRoman", 10f, 0);
                 foreach (ClassViewModel vm in _classes)
                 {
-                    _pdfPCell = new PdfPCell(new Phrase(vm.AcademicYearId.ToString(), _fontStyle));
+                    //_pdfPCell = new PdfPCell(new Phrase(vm.AcademicYearId.ToString(), _fontStyle));
+                    //_pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    //_pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    ////_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                    //_pdfPTable.AddCell(_pdfPCell);
+
+                    _pdfPCell = new PdfPCell(new Phrase(vm.AcademicLevelName, _fontStyle));
                     _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
                     _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
                     //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
                     _pdfPTable.AddCell(_pdfPCell);
 
-                    _pdfPCell = new PdfPCell(new Phrase(vm.AcademicLevelId.ToString(), _fontStyle));
+                    _pdfPCell = new PdfPCell(new Phrase(vm.ClassNames, _fontStyle));
                     _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
                     _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
                     //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
                     _pdfPTable.AddCell(_pdfPCell);
 
-                    _pdfPCell = new PdfPCell(new Phrase(vm.ClassNameId.ToString(), _fontStyle));
+                    _pdfPCell = new PdfPCell(new Phrase(vm.ClassTeacherName, _fontStyle));
                     _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
                     _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
                     //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
                     _pdfPTable.AddCell(_pdfPCell);
 
-                    _pdfPCell = new PdfPCell(new Phrase(vm.ClassTeacherId.ToString(), _fontStyle));
-                    _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                    _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-                    //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                    _pdfPTable.AddCell(_pdfPCell);
+                    //_pdfPCell = new PdfPCell(new Phrase(vm.ClassCategoryId.ToString(), _fontStyle));
+                    //_pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    //_pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    ////_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                    //_pdfPTable.AddCell(_pdfPCell);
 
-                    _pdfPCell = new PdfPCell(new Phrase(vm.ClassCategoryId.ToString(), _fontStyle));
-                    _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                    _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-                    //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                    _pdfPTable.AddCell(_pdfPCell);
-
-                    _pdfPCell = new PdfPCell(new Phrase(vm.LanguageStreamId.ToString(), _fontStyle));
-                    _pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                    _pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
-                    //_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                    _pdfPTable.AddCell(_pdfPCell); ;
+                    //_pdfPCell = new PdfPCell(new Phrase(vm.LanguageStreamId.ToString(), _fontStyle));
+                    //_pdfPCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    //_pdfPCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    ////_pdfPCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                    //_pdfPTable.AddCell(_pdfPCell); ;
                     _pdfPTable.CompleteRow();
                 }
                 #endregion

@@ -41,7 +41,7 @@ namespace SchoolManagement.WebService.Controllers
                     AcademicLevelId = classReportViewModel.AcademicLevel.Name,
                     ClassNameId = classReportViewModel.ClassName.Name,
                     Name = classReportViewModel.Name,
-                    ClassTeacherId = classReportViewModel.CreatedById
+                    //ClassTeacherId = classReportViewModel.CreatedById
                 };
                 response.Add(vm);
             }

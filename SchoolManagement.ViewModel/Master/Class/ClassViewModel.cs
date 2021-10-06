@@ -18,12 +18,15 @@ namespace SchoolManagement.ViewModel.Master
 
     public int AcademicYearId { get; set; }
     public int AcademicLevelId { get; set; }
+    public string AcademicLevelName { get; set; }
     public int ClassNameId { get; set; }
+    public string ClassNames { get; set; }
     public string Name { get; set; }
 
     public ClassCategory ClassCategoryId { get; set; }
     public LanguageStream LanguageStreamId { get; set; }
     public int ClassTeacherId { get; set; }
+    public string ClassTeacherName { get; set; }
 
     public List<ClassSubjectTeacherViewModel> ClassSubjectTeachers { get; set; }
   }

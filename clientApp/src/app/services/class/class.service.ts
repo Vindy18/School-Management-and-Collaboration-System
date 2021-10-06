@@ -62,4 +62,9 @@ export class ClassService {
     .get<ClassMasterDataModel>(environment.apiUrl + "Class/getClassMasterData");
   }
 
+  downloadClassListReport(): Observable<any> {
+    return this.httpClient.get<any>
+    (environment.apiUrl +'Class/downloadClassList');
+  }
+
 }

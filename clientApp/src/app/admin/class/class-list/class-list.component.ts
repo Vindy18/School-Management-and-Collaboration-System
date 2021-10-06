@@ -12,6 +12,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { ClassSubjectTeacherModel } from 'src/app/models/class/class.subject.teacher.model';
 import { BasicClassModel } from 'src/app/models/class/basic.class.model';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-class-list',
@@ -358,6 +359,25 @@ export class ClassListComponent implements OnInit {
    // get ClassNameId Id
   get classNameId() {
     return this.classForm.get("classNameId").value;
+  }
+
+  generateReport()
+  {
+    this.spinner.show();
+
+    this.classService.downloadClassListReport().subscribe((response:HttpResponse<Blob>)=>{
+      
+    },error=>{
+        this.spinner.hide();
+        
+    });
+  }
+
+  parseFilenameFromContentDisposition(contentDisposition) {
+    if (!contentDisposition) return null;
+    let matches = /filename="(.*?)"/g.exec(contentDisposition);
+
+    return matches && matches.length > 1 ? matches[1] : null;
   }
 
 }

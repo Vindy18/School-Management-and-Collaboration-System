@@ -12,6 +12,6 @@ namespace SchoolManagement.ViewModel.Report
         public string AcademicLevelId { get; set; }
         public string ClassNameId { get; set; }
         public string Name { get; set; }
-        public int ClassTeacherId { get; set; }
+        public string ClassTeacherId { get; set; }
     }
 }
