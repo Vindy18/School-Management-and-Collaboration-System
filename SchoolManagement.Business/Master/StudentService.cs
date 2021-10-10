@@ -294,7 +294,7 @@ namespace SchoolManagement.Business.Master
             var response = new DownloadFileModel();
             response.FileData = abytes;
             response.FileType = "application/pdf";
-            response.FileName = "StudentReport";
+            response.FileName = "StudentReport.pdf";
 
             return response;
         }
